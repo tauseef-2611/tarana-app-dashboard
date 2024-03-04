@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import {Container, Row, Col, Form, Button, Navbar, Nav, Dropdown} from 'react-bootstrap';
 import axios from 'axios';
-import { Container, Row, Col, Form, Button, Navbar, Nav } from 'react-bootstrap';
+// import { Container, Row, Col, Form, Button, Navbar, Nav } from 'react-bootstrap';
 import UploadData from './UploadData';
 import ListData from './ListData';
 import UpdateDataForm from './UpdateDataForm';
@@ -9,6 +10,9 @@ import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import PlaylistList from './components/PlaylistList';
 import Home from './components/Home';
+import Poet from './components/Poet';
+import Artist from './components/Artist';
+
 
 const App = () => {
   const [password, setPassword] = useState('');
@@ -89,32 +93,44 @@ const App = () => {
 
       {authenticated && (
         <>
-          <Navbar bg="light" expand="lg">
-            <Navbar.Brand>Tarana Portal</Navbar.Brand>
-            <Navbar.Toggle aria-controls="basic-navbar-nav" />
-            <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="mr-auto">
-                <Nav.Link onClick={() => setSelectedMenuItem('Home')}>Home</Nav.Link>
-                <Nav.Link onClick={() => setSelectedMenuItem('Stats')}>Stats</Nav.Link>
-                <Nav.Link onClick={() => setSelectedMenuItem('Upload Data')}>Upload Data</Nav.Link>
-                <Nav.Link onClick={() => setSelectedMenuItem('List')}>List</Nav.Link>
-                <Nav.Link onClick={() => setSelectedMenuItem('Playlists')}>New Playlist</Nav.Link>
-                <Nav.Link onClick={() => setSelectedMenuItem('PlaylistsList')}>Playlists</Nav.Link>
-              </Nav>
-              <Button variant="outline-secondary" onClick={handleLogout}>
-                Logout
-              </Button>
-            </Navbar.Collapse>
-          </Navbar>
+<Navbar bg="light" expand="lg" style={{ fontFamily: 'Sora, sans-serif', padding: '30px' }}>
+<Navbar.Brand><h3>Tarana Portal</h3></Navbar.Brand>
+      <Navbar.Toggle aria-controls="basic-navbar-nav" />
+      <Navbar.Collapse id="basic-navbar-nav">
+        <Nav className="mr-auto">
+          <Nav.Link onClick={() => setSelectedMenuItem('Home')}>Home</Nav.Link>
+          <Nav.Link onClick={() => setSelectedMenuItem('List')}>Tarane</Nav.Link>
+          <Nav.Link onClick={() => setSelectedMenuItem('PlaylistsList')}>Playlists</Nav.Link>
 
-          {selectedMenuItem === 'Upload Data' && (
+          <Dropdown style={{ marginRight: '10px' }}>
+            <Dropdown.Toggle variant="sedondary" id="dropdown-basic">
+              More
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => setSelectedMenuItem('Poets')}>Poets</Dropdown.Item>
+              <Dropdown.Item onClick={() => setSelectedMenuItem('Artist')}>Artist</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        <Dropdown>
+            <Dropdown.Toggle variant="success" id="dropdown-basic">
+              + Add
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              <Dropdown.Item onClick={() => setSelectedMenuItem('Music')}>Tarana</Dropdown.Item>
+              <Dropdown.Item onClick={() => setSelectedMenuItem('Playlists')}>Album</Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+          </Nav>
+
+        <Button variant="outline-secondary" onClick={handleLogout}>
+          Logout
+        </Button>
+      </Navbar.Collapse>
+    </Navbar>
+
+          {selectedMenuItem === 'Music' && (
             <UploadData fetchMusicData={fetchMusicData} />
           )}
-
-          {selectedMenuItem === 'Update Data' && selectedMusicId && (
-            <UpdateDataForm musicId={selectedMusicId} fetchMusicData={fetchMusicData} />
-          )}
-
           {selectedMenuItem === 'List' && (
             //  <h1>hello</h1>
               <ListData
@@ -127,6 +143,12 @@ const App = () => {
 
           {selectedMenuItem === 'Playlists' && (
             <PlaylistForm />
+          )}
+          {selectedMenuItem === 'Poets' && (
+            <Poet/>
+          )}
+          {selectedMenuItem === 'Artist' && (
+            <Artist/>
           )}
           {selectedMenuItem === 'PlaylistsList' && (
             <PlaylistList />

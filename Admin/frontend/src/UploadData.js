@@ -180,47 +180,32 @@ const UploadData = ({ fetchMusicData }) => {
         </div>
 
         <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Artist:</label>
-        <div className="flex items-center">
-          <select
-            className="mt-1 p-3 border rounded-md w-full bg-gray-100 focus:outline-none focus:ring focus:border-indigo-500"
-            name="Artist"
-            value={formData.Artist}
-            onChange={handleArtistChange}
-          >
-            <option value="">Select an artist</option>
-            {artists.map((artist) => (
-              <option key={artist._id} value={artist.Name}>
-                {artist.Name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            className="ml-2 p-3 border rounded-md w-1/2 focus:outline-none focus:ring focus:border-indigo-500"
-            placeholder="New Artist"
-            value={newArtist}
-            onChange={(e) => setNewArtist(e.target.value)}
-          />
-          <button
-            type="button"
-            className="ml-2 px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring focus:border-indigo-700"
-            onClick={handleAddNewArtist}
-          >
-            Add New
-          </button>
-        </div>
+  <label className="block text-sm font-medium text-gray-700">Artist:</label>
+  <select
+    className="mt-1 p-3 border rounded-md w-full bg-gray-100 focus:outline-none focus:ring focus:border-indigo-500"
+    name="Artist"
+    value={formData.Artist}
+    onChange={handleArtistChange}
+  >
+    <option value="">Select an artist</option>
+    {artists.map((artist) => (
+      <option key={artist._id} value={artist.Name}>
+        {artist.Name}
+      </option>
+    ))}
+  </select>
+</div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700">Cover:</label>
+        <input
+          type="text"
+          className="mt-1 p-3 border rounded-md w-full focus:outline-none focus:ring focus:border-indigo-500"
+          name="Cover"
+          value={formData.Cover}
+          onChange={handleInputChange}
+        />
+        {formData.Cover && <img src={formData.Cover} alt="Cover preview" />}
       </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Cover:</label>
-          <input
-            type="text"
-            className="mt-1 p-3 border rounded-md w-full focus:outline-none focus:ring focus:border-indigo-500"
-            name="Cover"
-            value={formData.Cover}
-            onChange={handleInputChange}
-          />
-        </div>
 
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Mood:</label>
@@ -239,38 +224,22 @@ const UploadData = ({ fetchMusicData }) => {
         </div>
 
         
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Poet:</label>
-        <div className="flex items-center">
-          <select
-            className="mt-1 p-3 border rounded-md w-full bg-gray-100 focus:outline-none focus:ring focus:border-indigo-500"
-            name="Poet"
-            value={formData.Poet}
-            onChange={handlePoetChange}
-          >
-            <option value="">Select a poet</option>
-            {poets.map((poet) => (
-              <option key={poet._id} value={poet.Name}>
-                {poet.Name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="text"
-            className="ml-2 p-3 border rounded-md w-1/2 focus:outline-none focus:ring focus:border-indigo-500"
-            placeholder="New Poet"
-            value={newPoet}
-            onChange={(e) => setNewPoet(e.target.value)}
-          />
-          <button
-            type="button"
-            className="ml-2 px-4 py-2 text-white bg-indigo-600 rounded-md hover:bg-indigo-500 focus:outline-none focus:ring focus:border-indigo-700"
-            onClick={handleAddNewPoet}
-          >
-            Add New
-          </button>
-        </div>
-      </div>
+        <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700">Poet:</label>
+  <select
+    className="mt-1 p-3 border rounded-md w-full bg-gray-100 focus:outline-none focus:ring focus:border-indigo-500"
+    name="Poet"
+    value={formData.Poet}
+    onChange={handlePoetChange}
+  >
+    <option value="">Select a poet</option>
+    {poets.map((poet) => (
+      <option key={poet._id} value={poet.Name}>
+        {poet.Name}
+      </option>
+    ))}
+  </select>
+</div>
 
         <div className="mb-4">
   <label className="block text-sm font-medium text-gray-700">Category:</label>

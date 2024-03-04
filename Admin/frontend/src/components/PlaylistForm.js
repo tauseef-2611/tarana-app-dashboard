@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import { Form, Button, Container, Row, Col, Card, InputGroup, FormControl, Toast, ListGroup } from 'react-bootstrap';
 
 const PlaylistForm = () => {
   const [playlistData, setPlaylistData] = useState({
@@ -10,12 +10,13 @@ const PlaylistForm = () => {
   });
 
   const [allMusic, setAllMusic] = useState([]);
+  const [search, setSearch] = useState('');
+  const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    // Fetch all music data when the component mounts
     const fetchAllMusic = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/music'); // Update with your backend server URL
+        const response = await axios.get('http://localhost:8000/music');
         setAllMusic(response.data);
       } catch (error) {
         console.error('Error fetching music data:', error.message);
@@ -30,22 +31,17 @@ const PlaylistForm = () => {
     setPlaylistData((prevData) => ({ ...prevData, [name]: value }));
   };
 
-  const handleMusicSelection = (e) => {
-    const selectedMusicId = e.target.value;
-    const isChecked = e.target.checked;
-
+  const handleMusicSelection = (musicId) => {
     setPlaylistData((prevData) => {
-      if (isChecked) {
-        // If the checkbox is checked, add the music ID to the array
+      if (prevData.Music.includes(musicId)) {
         return {
           ...prevData,
-          Music: [...prevData.Music, selectedMusicId],
+          Music: prevData.Music.filter((id) => id !== musicId),
         };
       } else {
-        // If the checkbox is unchecked, remove the music ID from the array
         return {
           ...prevData,
-          Music: prevData.Music.filter((id) => id !== selectedMusicId),
+          Music: [...prevData.Music, musicId],
         };
       }
     });
@@ -55,29 +51,40 @@ const PlaylistForm = () => {
     e.preventDefault();
 
     try {
-      // Create a playlist object with the required properties
       const playlistObject = {
         Name: playlistData.Name,
         Description: playlistData.Description,
         Music: playlistData.Music,
       };
 
-      // Post the playlist data to your backend server
       await axios.post('http://localhost:8000/playlist', playlistObject, {
         headers: {
           'Content-Type': 'application/json',
         },
-      }); // Update with your backend server URL
+      });
 
-      console.log('Playlist created successfully!');
-      // Optionally, you can redirect the user or perform any other action after successful submission
+      setShowToast(true);
     } catch (error) {
       console.error('Error creating playlist:', error.message);
     }
   };
 
+  const filteredMusic = allMusic.filter((music) =>
+    music.Title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedMusic = allMusic.filter((music) =>
+    playlistData.Music.includes(music._id)
+  );
+
   return (
     <Container>
+      <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide>
+        <Toast.Header>
+          <strong className="mr-auto">Success</strong>
+        </Toast.Header>
+        <Toast.Body>Playlist created successfully!</Toast.Body>
+      </Toast>
       <Row>
         <Col md={6}>
           <h2>Create a New Playlist</h2>
@@ -102,32 +109,33 @@ const PlaylistForm = () => {
                 required
               />
             </Form.Group>
-            <Form.Group>
-              <Form.Label>Select Music:</Form.Label>
-              <Row>
-                {allMusic.map((music) => (
-                  <Col key={music._id} md={4} className="mb-3">
-                    <Form.Check
-                      type="checkbox"
-                      label={music.Title}
-                      value={music._id}
-                      checked={playlistData.Music.includes(music._id)}
-                      onChange={handleMusicSelection}
-                    />
-                  </Col>
-                ))}
-              </Row>
-            </Form.Group>
             <Button type="submit">Create Playlist</Button>
           </Form>
+          <h2 className="mt-4">Selected Music</h2>
+          <ListGroup>
+            {selectedMusic.map((music) => (
+              <ListGroup.Item key={music._id}>{music.Title}</ListGroup.Item>
+            ))}
+          </ListGroup>
         </Col>
         <Col md={6}>
           <h2>Available Music</h2>
+          <InputGroup className="mb-3">
+            <FormControl
+              placeholder="Search Music"
+              aria-label="Search Music"
+              aria-describedby="basic-addon2"
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </InputGroup>
           <Row>
-            {allMusic.map((music) => (
+            {filteredMusic.map((music) => (
               <Col key={music._id} md={4} className="mb-3">
-                <Card>
-                  <Card.Img variant="top" src={music.Cover} alt={`${music.Title} Cover`} />
+                <Card
+                  onClick={() => handleMusicSelection(music._id)}
+                  style={{ cursor: 'pointer', height: '100%', boxShadow: playlistData.Music.includes(music._id) ? '0 0 10px blue' : 'none' }}
+                >
+                  <Card.Img variant="top" src={music.Cover} alt={`${music.Title} Cover`} style={{ height: '200px', objectFit: 'cover' }} />
                   <Card.Body>
                     <Card.Title>{music.Title}</Card.Title>
                   </Card.Body>

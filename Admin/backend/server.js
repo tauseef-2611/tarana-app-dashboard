@@ -22,33 +22,11 @@ const blobServiceClient = new BlobServiceClient(`https://${accountName}.blob.cor
 // Connect to MongoDB (replace the connection string with your MongoDB URL)
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 // Add this to your code
-const PlaylistModel = mongoose.model('Playlist', {
-  Name: String,
-  Description: String,
-  Music: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Music' }], // Reference to MusicModel
-});
+const PlaylistModel = require('./models/playlist.model');
+const MusicModel = require('./models/music.model');
+const PoetModel = require('./models/poet.model');
+const ArtistModel = require('./models/artist.model');
 
-// Define the MongoDB model
-const MusicModel = mongoose.model('Music', {
-  Title: String,
-  Cover: String,
-  Artist: String,
-  Mood: String,
-  Poet: String,
-  DateUploaded: Date,
-  Plays: Number,
-  Category: String,
-  Lyrics: String,
-  Link: String,
-});
-const PoetModel = mongoose.model('Poet', {
-  Name: String,
-  Image: String,
-});
-const ArtistModel = mongoose.model('Artist', {
-  Name: String,
-  Image: String,
-});
 
 // Multer setup for handling file uploads
 const storage = multer.memoryStorage();
@@ -407,7 +385,36 @@ app.get('/stats', async (req, res) => {
     }
   });
   
+  app.put('/playlist/:id', async (req, res) => {
+    const updatedPlaylist = await PlaylistModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedPlaylist);
+});
 
+app.put('/poet/:id', async (req, res) => {
+    const updatedPoet = await PoetModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedPoet);
+});
+
+app.put('/artist/:id', async (req, res) => {
+    const updatedArtist = await ArtistModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedArtist);
+});
+
+// Delete endpoints
+app.delete('/playlist/:id', async (req, res) => {
+    await PlaylistModel.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Playlist deleted' });
+});
+
+app.delete('/poet/:id', async (req, res) => {
+    await PoetModel.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Poet deleted' });
+});
+
+app.delete('/artist/:id', async (req, res) => {
+    await ArtistModel.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Artist deleted' });
+});
 
 
 
