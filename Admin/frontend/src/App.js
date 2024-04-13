@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {Container, Row, Col, Form, Button, Navbar, Nav, Dropdown} from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Navbar, Nav, Dropdown } from 'react-bootstrap';
 import axios from 'axios';
 // import { Container, Row, Col, Form, Button, Navbar, Nav } from 'react-bootstrap';
 import UploadData from './UploadData';
@@ -73,7 +73,7 @@ const App = () => {
       {!authenticated && (
         <Row className="justify-content-center mt-5">
           <Col md={4}>
-            <Form>
+            <Form onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
               <Form.Group controlId="formPassword">
                 <Form.Label>Password:</Form.Label>
                 <Form.Control
@@ -83,7 +83,7 @@ const App = () => {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </Form.Group>
-              <Button variant="primary" onClick={handleLogin}>
+              <Button variant="primary" type="submit">
                 Login
               </Button>
             </Form>
@@ -93,73 +93,73 @@ const App = () => {
 
       {authenticated && (
         <>
-<Navbar bg="light" expand="lg" style={{ fontFamily: 'Sora, sans-serif', padding: '30px' }}>
-<Navbar.Brand><h3>Tarana Portal</h3></Navbar.Brand>
-      <Navbar.Toggle aria-controls="basic-navbar-nav" />
-      <Navbar.Collapse id="basic-navbar-nav">
-        <Nav className="mr-auto">
-          <Nav.Link onClick={() => setSelectedMenuItem('Home')}>Home</Nav.Link>
-          <Nav.Link onClick={() => setSelectedMenuItem('List')}>Tarane</Nav.Link>
-          <Nav.Link onClick={() => setSelectedMenuItem('PlaylistsList')}>Playlists</Nav.Link>
+          <Navbar bg="light" expand="lg" style={{ fontFamily: 'Sora, sans-serif', padding: '30px' }}>
+            <Navbar.Brand><h3>Tarana Portal</h3></Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="mr-auto">
+                <Nav.Link onClick={() => setSelectedMenuItem('Home')}>Home</Nav.Link>
+                <Nav.Link onClick={() => setSelectedMenuItem('List')}>Tarane</Nav.Link>
+                <Nav.Link onClick={() => setSelectedMenuItem('PlaylistsList')}>Playlists</Nav.Link>
 
-          <Dropdown style={{ marginRight: '10px' }}>
-            <Dropdown.Toggle variant="sedondary" id="dropdown-basic">
-              More
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setSelectedMenuItem('Poets')}>Poets</Dropdown.Item>
-              <Dropdown.Item onClick={() => setSelectedMenuItem('Artist')}>Artist</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-        <Dropdown>
-            <Dropdown.Toggle variant="success" id="dropdown-basic">
-              + Add
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              <Dropdown.Item onClick={() => setSelectedMenuItem('Music')}>Tarana</Dropdown.Item>
-              <Dropdown.Item onClick={() => setSelectedMenuItem('Playlists')}>Album</Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
-          </Nav>
+                <Dropdown style={{ marginRight: '10px' }}>
+                  <Dropdown.Toggle variant="sedondary" id="dropdown-basic">
+                    More
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => setSelectedMenuItem('Poets')}>Poets</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setSelectedMenuItem('Artist')}>Artist</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+                <Dropdown>
+                  <Dropdown.Toggle variant="success" id="dropdown-basic">
+                    + Add
+                  </Dropdown.Toggle>
+                  <Dropdown.Menu>
+                    <Dropdown.Item onClick={() => setSelectedMenuItem('Music')}>Tarana</Dropdown.Item>
+                    <Dropdown.Item onClick={() => setSelectedMenuItem('Playlists')}>Album</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Nav>
 
-        <Button variant="outline-secondary" onClick={handleLogout}>
-          Logout
-        </Button>
-      </Navbar.Collapse>
-    </Navbar>
+              <Button variant="outline-secondary" onClick={handleLogout}>
+                Logout
+              </Button>
+            </Navbar.Collapse>
+          </Navbar>
 
           {selectedMenuItem === 'Music' && (
             <UploadData fetchMusicData={fetchMusicData} />
           )}
           {selectedMenuItem === 'List' && (
             //  <h1>hello</h1>
-              <ListData
+            <ListData
               musicData={musicData}
               handleUpdateData={handleUpdateData}
               handleDeleteData={handleDeleteData}
             />
-           
+
           )}
 
           {selectedMenuItem === 'Playlists' && (
             <PlaylistForm />
           )}
           {selectedMenuItem === 'Poets' && (
-            <Poet/>
+            <Poet />
           )}
           {selectedMenuItem === 'Artist' && (
-            <Artist/>
+            <Artist />
           )}
           {selectedMenuItem === 'PlaylistsList' && (
             <PlaylistList />
           )}
 
           {selectedMenuItem === 'Home' && (
-            <Home/>
+            <Home />
           )}
 
           {selectedMenuItem === 'Stats' && (
-            <Home/>
+            <Home />
           )}
 
         </>

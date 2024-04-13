@@ -1,16 +1,48 @@
 import React, { useState } from 'react';
-import { ListGroup, Button, Modal, Form } from 'react-bootstrap';
+import { useEffect } from 'react';
+import { Button, Modal, Form } from 'react-bootstrap';
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 import axios from 'axios';
+import { useTable, useSortBy } from 'react-table';
+
 
 const ListData = ({ musicData, handleDeleteData }) => {
   const [show, setShow] = useState(false);
   const [currentMusic, setCurrentMusic] = useState(null);
-  const [updatedMusic, setUpdatedMusic] = useState({ Title: '', Cover: '' });
+  const [artists, setArtists] = useState([]);
+  const [poets, setPoets] = useState([]);
 
+  const categories = [
+    { value: 'Hamd', label: 'Hamd' },
+    { value: 'Naat', label: 'Naat' },
+    { value: 'Tarana', label: 'Tarana' },
+    { value: 'Arabic Nasheed', label: 'Arabic Nasheed' },
+    { value: 'Tanzeemi', label: 'Tanzeemi' },
+    { value: 'Youth', label: 'Youth' },
+    // Add more categories as needed
+  ];
+  const [updatedMusic, setUpdatedMusic] = useState({ Title: '', Cover: '', Artist: '', Poet: '', Category: '', Lyrics: '' });
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const poetsResponse = await axios.get(`${process.env.REACT_APP_URL}/poets`);
+        const artistsResponse = await axios.get(`${process.env.REACT_APP_URL}/artists`);
+
+        setPoets(poetsResponse.data);
+        setArtists(artistsResponse.data);
+        console.log(poetsResponse.data);
+        console.log(artistsResponse.data);
+      } catch (error) {
+        console.error('Error fetching data:', error.message);
+      }
+    };
+
+    fetchData();
+  }, []);
   const handleUpdateData = (music) => {
+    console.log(music);
     setCurrentMusic(music);
-    setUpdatedMusic({ Title: music.Title, Cover: music.Cover });
+    setUpdatedMusic({ Title: music.Title, Cover: music.Cover, Artist: music.Artist, Poet: music.Poet, Category: music.Category, Lyrics: music.Lyrics });
     setShow(true);
   };
 
@@ -27,43 +59,98 @@ const ListData = ({ musicData, handleDeleteData }) => {
       console.error('Error updating music:', error.message);
     }
   };
+  const columns = React.useMemo(
+    () => [
+      {
+        Header: 'Cover',
+        accessor: 'Cover', // accessor is the "key" in the data
+        Cell: ({ value }) => <img src={value} alt="" className="h-10 w-10 flex-none rounded-full bg-gray-50" />
+      },
+      {
+        Header: 'Title',
+        accessor: 'Title',
+      },
+      {
+        Header: 'Artist',
+        accessor: 'Artist',
+      },
+      {
+        Header: 'Poet',
+        accessor: 'Poet',
+      },
+      {
+        Header: 'Category',
+        accessor: 'Category',
+      },
+      {
+        Header: 'Actions',
+        accessor: '_id',
+        Cell: ({ row }) => (
+          <div className="flex">
+            <Button
+              variant="outline-primary"
+              className="me-2"
+              onClick={() => handleUpdateData(row.original)}
+            >
+              <BsPencilSquare />
+            </Button>
+            <Button
+              variant="outline-danger"
+              onClick={() => handleDeleteData(row.original)}
+            >
+              <BsTrash />
+            </Button>
+          </div>
+        ),
+      },
+    ],
+    []
+  );
+
+  const {
+    getTableProps,
+    getTableBodyProps,
+    headerGroups,
+    rows,
+    prepareRow,
+  } = useTable({ columns, data: musicData }, useSortBy);
+
 
   return (
     <div className='font-sora'>
       <h2 className="text-2xl font-semibold mb-4">Tarane</h2>
-      <ul role="list" className="divide-y divide-gray-100">
-        {musicData.map((music, index) => (
-          <li key={music._id} className={`flex justify-between items-center gap-x-4 py-4 px-4 border-b border-gray-300 shadow-md ${index !== 0 && 'mt-4'}`}>
-            <div className="flex min-w-0 gap-x-2">
-              <img
-                className="h-10 w-10 flex-none rounded-full bg-gray-50"
-                src={music.Cover}  
-                alt=""
-              />
-              <div className="min-w-0 flex-auto">
-                <p className="text-lg font-semibold leading-6 text-gray-900">{music.Title}</p>
-                {/* Display other music data... */}
-              </div>
-            </div>
-            <div className="flex">
-              <Button
-                variant="outline-primary"
-                className="me-2"
-                onClick={() => handleUpdateData(music)}
-              >
-                <BsPencilSquare />
-              </Button>
-              <Button
-                variant="outline-danger"
-                onClick={() => handleDeleteData(music._id)}
-              >
-                <BsTrash />
-              </Button>
-            </div>
-          </li>
-        ))}
-      </ul>
-
+      <table {...getTableProps()} className="table">
+        <thead>
+          {headerGroups.map(headerGroup => (
+            <tr {...headerGroup.getHeaderGroupProps()}>
+              {headerGroup.headers.map(column => (
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}>
+                  {column.render('Header')}
+                  <span>
+                    {column.isSorted
+                      ? column.isSortedDesc
+                        ? ' 🔽'
+                        : ' 🔼'
+                      : ''}
+                  </span>
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody {...getTableBodyProps()}>
+          {rows.map(row => {
+            prepareRow(row);
+            return (
+              <tr {...row.getRowProps()}>
+                {row.cells.map(cell => (
+                  <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                ))}
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
       <Modal show={show} onHide={() => setShow(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Update Music</Modal.Title>
@@ -78,18 +165,46 @@ const ListData = ({ musicData, handleDeleteData }) => {
               <Form.Label>Cover</Form.Label>
               <Form.Control type="text" name="Cover" value={updatedMusic.Cover} onChange={handleUpdateChange} />
             </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShow(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleUpdateSubmit}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
+            <Form.Group>
+              <Form.Label>Artist</Form.Label>
+              <Form.Select name="Artist" value={updatedMusic.Artist} onChange={handleUpdateChange}>
+                {artists.map(artist => (
+                  <option value={artist.Name}>{artist.Name}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Poet</Form.Label>
+              <Form.Select name="Poet" value={updatedMusic.Poet} onChange={handleUpdateChange}>
+                {poets.map(poet => (
+                  <option value={poet.Name}>{poet.Name}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Category</Form.Label>
+              <Form.Select name="Category" value={updatedMusic.Category} onChange={handleUpdateChange}>
+                {categories.map(category => (
+                  <option value={category.label}>{category.label}</option>
+                ))}
+              </Form.Select>
+            </Form.Group>
+            <Form.Group>
+            <Form.Label>Lyrics</Form.Label>
+            <Form.Control as="textarea" name="Lyrics" value={updatedMusic.Lyrics} onChange={handleUpdateChange} />
+          </Form.Group>
+        </Form>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={() => setShow(false)}>
+          Close
+        </Button>
+        <Button variant="primary" onClick={handleUpdateSubmit}>
+          Save Changes
+        </Button>
+      </Modal.Footer>
+    </Modal>
+    </div >
   );
 };
 

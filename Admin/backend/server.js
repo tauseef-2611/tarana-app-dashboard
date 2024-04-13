@@ -137,8 +137,8 @@ app.use(cors({
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
-// Route to update data in MongoDB and Blob Storage
-app.put('/update/:id', upload.single('file'), async (req, res) => {
+
+  app.put('/update/:id', upload.single('file'), async (req, res) => {
     try {
       const musicId = req.params.id;
       const { Title, Cover, Artist, Mood, Poet, Category, Lyrics } = req.body;
@@ -151,25 +151,30 @@ app.put('/update/:id', upload.single('file'), async (req, res) => {
         return res.status(404).json({ error: 'Music data not found.' });
       }
   
-      // Delete existing blob from Azure Blob Storage
-      await deleteFile(existingMusicData.Link);
+      // If a new file is provided, delete the existing blob and upload the new file
+      if (file) {
+        // Delete existing blob from Azure Blob Storage
+        await deleteFile(existingMusicData.Link);
   
-      // Save the new file to Azure Blob Storage
-      const newBlobName = file.originalname; // Use a suitable name for your blob
-      await uploadFile(file.buffer, newBlobName);
+        // Save the new file to Azure Blob Storage
+        const newBlobName = file.originalname; // Use a suitable name for your blob
+        await uploadFile(file.buffer, newBlobName);
   
-      // Get a temporary read URL for the new uploaded blob
-      const newDownloadURL = await getDownloadLink(newBlobName);
+        // Get a temporary read URL for the new uploaded blob
+        const newDownloadURL = await getDownloadLink(newBlobName);
   
-      // Update form data with the new shareable link in MongoDB
-      existingMusicData.Title = Title;
-      existingMusicData.Cover = Cover;
-      existingMusicData.Artist = Artist;
-      existingMusicData.Mood = Mood;
-      existingMusicData.Poet = Poet;
-      existingMusicData.Category = Category;
-      existingMusicData.Lyrics = Lyrics;
-      existingMusicData.Link = newDownloadURL;
+        // Update the link in the music data
+        existingMusicData.Link = newDownloadURL;
+      }
+  
+      // Update the other fields in the music data
+      if (Title) existingMusicData.Title = Title;
+      if (Cover) existingMusicData.Cover = Cover;
+      if (Artist) existingMusicData.Artist = Artist;
+      if (Mood) existingMusicData.Mood = Mood;
+      if (Poet) existingMusicData.Poet = Poet;
+      if (Category) existingMusicData.Category = Category;
+      if (Lyrics) existingMusicData.Lyrics = Lyrics;
   
       await existingMusicData.save();
   
@@ -179,6 +184,52 @@ app.put('/update/:id', upload.single('file'), async (req, res) => {
       res.status(500).json({ error: 'Internal Server Error' });
     }
   });
+
+
+
+
+// Route to update data in MongoDB and Blob Storage
+// app.put('/update/:id', upload.single('file'), async (req, res) => {
+//     try {
+//       const musicId = req.params.id;
+//       const { Title, Cover, Artist, Mood, Poet, Category, Lyrics } = req.body;
+//       const file = req.file;
+  
+//       // Retrieve existing music data from MongoDB
+//       const existingMusicData = await MusicModel.findById(musicId);
+  
+//       if (!existingMusicData) {
+//         return res.status(404).json({ error: 'Music data not found.' });
+//       }
+  
+//       // Delete existing blob from Azure Blob Storage
+//       await deleteFile(existingMusicData.Link);
+  
+//       // Save the new file to Azure Blob Storage
+//       const newBlobName = file.originalname; // Use a suitable name for your blob
+//       await uploadFile(file.buffer, newBlobName);
+  
+//       // Get a temporary read URL for the new uploaded blob
+//       const newDownloadURL = await getDownloadLink(newBlobName);
+  
+//       // Update form data with the new shareable link in MongoDB
+//       existingMusicData.Title = Title;
+//       existingMusicData.Cover = Cover;
+//       existingMusicData.Artist = Artist;
+//       existingMusicData.Mood = Mood;
+//       existingMusicData.Poet = Poet;
+//       existingMusicData.Category = Category;
+//       existingMusicData.Lyrics = Lyrics;
+//       existingMusicData.Link = newDownloadURL;
+  
+//       await existingMusicData.save();
+  
+//       res.status(200).json({ message: 'Data updated successfully.' });
+//     } catch (error) {
+//       console.error('Error:', error.message);
+//       res.status(500).json({ error: 'Internal Server Error' });
+//     }
+//   });
   
   
   // Function to delete a file from Azure Blob Storage

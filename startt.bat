@@ -17,6 +17,14 @@ if not exist "%PROJECT_PATH%" (
     exit /b
 )
 
+echo Updating the code from the repository...
+git pull
+if errorlevel 1 (
+    echo Error: Failed to update the code from the repository.
+    pause
+    exit /b
+)
+
 cd /d %FRONTEND_PATH%
 if not exist "%FRONTEND_PATH%" (
     echo Error: Frontend path not found.
@@ -25,7 +33,7 @@ if not exist "%FRONTEND_PATH%" (
 )
 
 echo Installing frontend dependencies...
-npm install
+call npm install
 if errorlevel 1 (
     echo Error: Failed to install frontend dependencies.
     pause
@@ -33,16 +41,6 @@ if errorlevel 1 (
 )
 
 echo Frontend dependencies installed successfully.
-
-echo Building the frontend...
-npm run build
-if errorlevel 1 (
-    echo Error: Failed to build the frontend.
-    pause
-    exit /b
-)
-
-echo Frontend built successfully.
 
 cd /d %BACKEND_PATH%
 if not exist "%BACKEND_PATH%" (
@@ -52,7 +50,7 @@ if not exist "%BACKEND_PATH%" (
 )
 
 echo Installing backend dependencies...
-npm install
+call npm install
 if errorlevel 1 (
     echo Error: Failed to install backend dependencies.
     pause
@@ -62,7 +60,7 @@ if errorlevel 1 (
 echo Backend dependencies installed successfully.
 
 echo Attempting to start the backend server...
-start "Backend Server" cmd /k "cd /d %BACKEND_PATH% && npm start"
+start "Backend Server" cmd /k "cd /d %BACKEND_PATH% && call node server.js"
 if errorlevel 1 (
     echo Error: Failed to start the backend server.
     pause
@@ -73,7 +71,7 @@ echo Backend server started successfully.
 
 cd /d %FRONTEND_PATH%
 echo Attempting to start the frontend server...
-start "Frontend Server" cmd /k "cd /d %FRONTEND_PATH% && npm start"
+start "Frontend Server" cmd /k "cd /d %FRONTEND_PATH% && call npm start"
 if errorlevel 1 (
     echo Error: Failed to start the frontend server.
     pause
@@ -81,8 +79,15 @@ if errorlevel 1 (
 )
 
 echo Frontend server started successfully.
-pause
 
 echo The application has been started successfully.
 echo Please check the new command prompt windows for the servers.
-pause
+
+:shutdown
+set /p shutdown=Do you want to shut down the servers (Y/N)?
+if /I "%shutdown%" EQU "Y" (
+    taskkill /FI "WindowTitle eq Backend Server*"
+    taskkill /FI "WindowTitle eq Frontend Server*"
+) else (
+    goto shutdown
+)

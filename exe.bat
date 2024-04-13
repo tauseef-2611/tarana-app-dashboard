@@ -17,6 +17,14 @@ if not exist "%PROJECT_PATH%" (
     exit /b
 )
 
+echo Updating the code from the repository...
+git -c http.extraHeader="AUTHORIZATION: bearer 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" pull
+if errorlevel 1 (
+    echo Error: Failed to update the code from the repository.
+    pause
+    exit /b
+)
+
 cd /d %FRONTEND_PATH%
 if not exist "%FRONTEND_PATH%" (
     echo Error: Frontend path not found.
