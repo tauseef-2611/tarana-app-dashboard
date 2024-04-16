@@ -4,9 +4,12 @@ import { Button, Modal, Form } from 'react-bootstrap';
 import { BsPencilSquare, BsTrash } from 'react-icons/bs';
 import axios from 'axios';
 import { useTable, useSortBy } from 'react-table';
+import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 
-const ListData = ({ musicData, handleDeleteData }) => {
+const ListData = ({ musicData, fetchMusicData }) => {
   const [show, setShow] = useState(false);
   const [currentMusic, setCurrentMusic] = useState(null);
   const [artists, setArtists] = useState([]);
@@ -22,6 +25,15 @@ const ListData = ({ musicData, handleDeleteData }) => {
     // Add more categories as needed
   ];
   const [updatedMusic, setUpdatedMusic] = useState({ Title: '', Cover: '', Artist: '', Poet: '', Category: '', Lyrics: '' });
+  const handleDeleteData = async (id) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_URL}/delete/${id}`);
+      toast.success('Data deleted successfully');
+      fetchMusicData();
+    } catch (error) {
+      toast.error('Error deleting data: ' + error.message);
+    }
+  };
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -53,10 +65,13 @@ const ListData = ({ musicData, handleDeleteData }) => {
   const handleUpdateSubmit = async () => {
     try {
       const response = await axios.put(`http://localhost:8000/update/${currentMusic._id}`, updatedMusic);
+      fetchMusicData();
+      toast.success('Music updated successfully');
       // Update the music data in the parent component...
       setShow(false);
+
     } catch (error) {
-      console.error('Error updating music:', error.message);
+      toast.error('Error updating music:', error.message);
     }
   };
   const columns = React.useMemo(
@@ -96,7 +111,7 @@ const ListData = ({ musicData, handleDeleteData }) => {
             </Button>
             <Button
               variant="outline-danger"
-              onClick={() => handleDeleteData(row.original)}
+              onClick={() => handleDeleteData(row.original._id)}
             >
               <BsTrash />
             </Button>
@@ -204,6 +219,7 @@ const ListData = ({ musicData, handleDeleteData }) => {
         </Button>
       </Modal.Footer>
     </Modal>
+    <ToastContainer />
     </div >
   );
 };

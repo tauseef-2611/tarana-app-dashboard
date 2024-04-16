@@ -42,15 +42,7 @@ const App = () => {
     setSelectedMenuItem('Update Data');
   };
 
-  const handleDeleteData = async (id) => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_URL}/delete/${id}`);
-      console.log('Data deleted successfully');
-      fetchMusicData();
-    } catch (error) {
-      console.error('Error deleting data:', error.message);
-    }
-  };
+
 
   const handleLogin = () => {
     if (password === '1234') {
@@ -135,8 +127,7 @@ const App = () => {
             //  <h1>hello</h1>
             <ListData
               musicData={musicData}
-              handleUpdateData={handleUpdateData}
-              handleDeleteData={handleDeleteData}
+              fetchMusicData={fetchMusicData}
             />
 
           )}

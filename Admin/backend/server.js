@@ -396,7 +396,7 @@ app.get('/stats', async (req, res) => {
     const totalMusicCount = await MusicModel.countDocuments();
     const totalPlaylistCount = await PlaylistModel.countDocuments();
     const totalPlayCount = await MusicModel.aggregate([{ $group: { _id: null, plays: { $sum: "$Plays" } } }]);
-    
+    console.log(totalPlayCount)
     res.json({
       totalMusicCount,
       totalPlaylistCount,
@@ -422,7 +422,7 @@ app.get('/stats', async (req, res) => {
           $sort: { totalPlays: -1 },
         },
         {
-          $limit: 5,
+          $limit: 10,
         },
       ]);
   
